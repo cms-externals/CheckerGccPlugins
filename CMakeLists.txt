@@ -1,37 +1,33 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2018 CERN for the benefit of the CMS collaboration
+cmake_minimum_required(VERSION 3.10)
 # The name of the package:
-atlas_subdir( CheckerGccPlugins )
+project( CheckerGccPlugins )
 
 # Only do anything for a GCC compiler:
 if( NOT CMAKE_COMPILER_IS_GNUCXX )
    return()
 endif()
 
-# Since this package doesn't depend on any other ATLAS packages,
+# Since this package doesn't depend on any other CMS packages,
 # in release recompilation mode don't even go further than this.
-if( ATLAS_RELEASE_MODE )
+if( CMS_RELEASE_MODE )
    return()
 endif()
-
-# External(s) needed by the compilation:
-find_package( gmp )
 
 # Disable the -Wl,--no-undefined linker flag for the library:
 string( REPLACE "-Wl,--no-undefined" ""
    CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}" )
 
 # Set up the build of the library:
-atlas_add_library( checker_gccplugins
-   src/*.cxx
-   NO_PUBLIC_HEADERS MODULE
-   PRIVATE_INCLUDE_DIRS ${GMP_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${GMP_LIBRARIES} )
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx)
+add_library( checker_gccplugins MODULE
+   ${SOURCES} )
 target_compile_options( checker_gccplugins
    PRIVATE -fno-rtti )
 target_compile_options( checker_gccplugins
    PRIVATE -iwithprefix plugin/include )
 
+enable_testing()
 
 function( CheckerGccPlugins_test1 testName mode )
 
@@ -40,10 +36,16 @@ function( CheckerGccPlugins_test1 testName mode )
   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/checker_test.sh.in
                   ${CMAKE_CURRENT_BINARY_DIR}/CheckerGccPlugins_${_fullName}.sh
                   @ONLY )
-  atlas_add_test( ${_fullName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/CheckerGccPlugins_${_fullName}.sh
-                  POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${_fullName} '' ${CMAKE_CURRENT_SOURCE_DIR}/share/${testName}_test.ref"
-                   )
+
+  find_program( BASH_EXECUTABLE bash )
+
+  set(POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${_fullName} '' ${CMAKE_CURRENT_SOURCE_DIR}/share/${testName}_test.ref")
+
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/unit_test_executor.sh.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/${_fullName}.sh
+                  @ONLY )
+  add_test( NAME ${_fullName}_ctest
+                  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${_fullName}.sh)
 
 endfunction( CheckerGccPlugins_test1 )
 
@@ -54,10 +56,10 @@ CheckerGccPlugins_test1( ${testName} DEBUG )
 endfunction( CheckerGccPlugins_test )
 
 
-CheckerGccPlugins_test( gaudi_inheritance )
-CheckerGccPlugins_test( divcheck )
-CheckerGccPlugins_test( naming )
-CheckerGccPlugins_test( check_ts1 )
+#CheckerGccPlugins_test( gaudi_inheritance )
+#CheckerGccPlugins_test( divcheck )
+#CheckerGccPlugins_test( naming )
+#CheckerGccPlugins_test( check_ts1 )
 CheckerGccPlugins_test( thread1 )
 CheckerGccPlugins_test( thread2 )
 CheckerGccPlugins_test( thread3 )
