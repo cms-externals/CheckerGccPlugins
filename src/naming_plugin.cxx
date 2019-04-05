@@ -329,9 +329,9 @@ void naming_finishdecl_callback (void* gcc_data, void* /*user_data*/)
         if (strcmp (name, "__FUNCTION__") == 0) return;
         if (strcmp (name, "__PRETTY_FUNCTION__") == 0) return;
         if (strcmp (name, "__func__") == 0) return;
-        if (strcmp (name, "__for_range") == 0) return;
-        if (strcmp (name, "__for_begin") == 0) return;
-        if (strcmp (name, "__for_end") == 0) return;
+        if (startswith (name, "__for_range")) return;
+        if (startswith (name, "__for_begin")) return;
+        if (startswith (name, "__for_end")) return;
         if (strcmp (name, "__tls_guard") == 0) return;
 
         // root dictionaries.

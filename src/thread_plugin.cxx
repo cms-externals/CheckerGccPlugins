@@ -150,7 +150,11 @@ const pass_data thread_pass_data =
 {
   GIMPLE_PASS, /* type */
   "thread", /* name */
+#if GCC_VERSION < 9000
   0, /* optinfo_flags */
+#else
+  OPTGROUP_NONE,  /* optinfo_flags */
+#endif
   TV_NONE, /* tv_id */
   0, /* properties_required */
   0, /* properties_provided */
