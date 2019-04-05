@@ -23,7 +23,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx)
 add_library( checker_gccplugins MODULE
    ${SOURCES} )
 target_compile_options( checker_gccplugins
-   PRIVATE -fno-rtti )
+   PRIVATE -fno-rtti -Wno-deprecated-copy)
 target_compile_options( checker_gccplugins
    PRIVATE -iwithprefix plugin/include )
 
